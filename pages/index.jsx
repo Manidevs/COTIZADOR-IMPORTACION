@@ -1,54 +1,54 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-export default function Cotizador() {
-  const [producto, setProducto] = useState('');
-  const [valorUSD, setValorUSD] = useState('');
-  const [pesoKG, setPesoKG] = useState('');
-  const [tipoTransporte, setTipoTransporte] = useState('Aéreo');
-  const [largo, setLargo] = useState('');
-  const [ancho, setAncho] = useState('');
-  const [alto, setAlto] = useState('');
-  const [numCajas, setNumCajas] = useState('');
-  const [cotizacion, setCotizacion] = useState('');
+const CotizadorImportaciones = () => {
+    const [producto, setProducto] = useState('');
+    const [valor, setValor] = useState('');
+    const [peso, setPeso] = useState('');
+    const [largo, setLargo] = useState('');
+    const [ancho, setAncho] = useState('');
+    const [alto, setAlto] = useState('');
+    const [cantidad, setCantidad] = useState('');
+    const [modoTransporte, setModoTransporte] = useState('Aéreo');
+    const [costoTransporte, setCostoTransporte] = useState('');
 
-  const calcularCotizacion = () => {
-    const volumenCBM = (largo / 100) * (ancho / 100) * (alto / 100) * numCajas;
-    let costoTransporte = 0;
+    const tarifas = {
+        Aéreo: 9000000,
+        Courrier: 5000000,
+        Marítimo: 2500000
+    };
 
-    switch (tipoTransporte) {
-      case 'Aéreo':
-        costoTransporte = volumenCBM * 9000000;
-        break;
-      case 'Marítimo':
-        costoTransporte = volumenCBM * 2500000;
-        break;
-      case 'Courrier':
-        costoTransporte = volumenCBM * 5000000;
-        break;
-      default:
-        costoTransporte = 0;
-    }
+    const calcularCosto = () => {
+        const volumen = (largo * ancho * alto * cantidad) / 1000000;
+        const costoTransporte = volumen * tarifas[modoTransporte];
+        const iva = valor * 0.19;
+        const arancel = valor * 0.05;
+        const costoTotal = valor + costoTransporte + iva + arancel;
 
-    setCotizacion(`Costo estimado de transporte: $${costoTransporte.toLocaleString()}`);
-  };
+        setCostoTransporte(`Costo estimado de transporte: $${costoTransporte.toLocaleString()}
+IVA: $${iva.toLocaleString()}
+Arancel: $${arancel.toLocaleString()}
+Costo total estimado: $${costoTotal.toLocaleString()}`);
+    };
 
-  return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Cotizador de Importaciones</h1>
-      <input type="text" placeholder="Producto" value={producto} onChange={(e) => setProducto(e.target.value)} />
-      <input type="number" placeholder="Valor en USD" value={valorUSD} onChange={(e) => setValorUSD(e.target.value)} />
-      <input type="number" placeholder="Peso en KG" value={pesoKG} onChange={(e) => setPesoKG(e.target.value)} />
-      <input type="number" placeholder="Largo en cm" value={largo} onChange={(e) => setLargo(e.target.value)} />
-      <input type="number" placeholder="Amcho en cm" value={ancho} onChange={(e) => setAncho(e.target.value)} />
-      <input type="number" placeholder="Alto en cm" value={alto} onChange={(e) => setAlto(e.target.value)} />
-      <input type="number" placeholder="Número de Cajas/Paquetes" value={numCajas} onChange={(e) => setNumCajas(e.target.value)} />
-      <select value={tipoTransporte} onChange={(e) => setTipoTransporte(e.target.value)}>
-        <option value="Aéreo">Aéreo</option>
-        <option value="Marítimo">Marítimo</option>
-        <option value="Courrier">Courrier</option>
-      </select>
-      <button onClick={calcularCotizacion}>Calcular Cotización</button>
-      {cotizacion && <p>{cotizacion}</p>}
-    </div>
-  );
-}
+    return (
+        <div>
+            <h1 style={{ textAlign: 'center' }}>Cotizador de Importaciones</h1>
+            <input type="text" placeholder="Producto" value={producto} onChange={(e) => setProducto(e.target.value)} />
+            <input type="number" placeholder="Valor en USD" value={valor} onChange={(e) => setValor(Number(e.target.value))} />
+            <input type="number" placeholder="Peso en KG" value={peso} onChange={(e) => setPeso(e.target.value)} />
+            <input type="number" placeholder="Largo en CM" value={largo} onChange={(e) => setLargo(e.target.value)} />
+            <input type="number" placeholder="Ancho en CM" value={ancho} onChange={(e) => setAncho(e.target.value)} />
+            <input type="number" placeholder="Alto en CM" value={alto} onChange={(e) => setAlto(e.target.value)} />
+            <input type="number" placeholder="Cantidad de cajas/paquetes" value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
+            <select value={modoTransporte} onChange={(e) => setModoTransporte(e.target.value)}>
+                <option value="Aéreo">Aéreo</option>
+                <option value="Courrier">Courrier</option>
+                <option value="Marítimo">Marítimo</option>
+            </select>
+            <button onClick={calcularCosto}>Calcular Cotización</button>
+            <p>{costoTransporte}</p>
+        </div>
+    );
+};
+
+export default CotizadorImportaciones;
