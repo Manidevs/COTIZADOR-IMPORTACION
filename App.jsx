@@ -1,63 +1,69 @@
 import { useState } from 'react';
-import { Input, Button, Select } from '@/components/ui';
 
-export default function ImportQuoteApp() {
-  const [description, setDescription] = useState('');
-  const [value, setValue] = useState('');
-  const [length, setLength] = useState('');
-  const [width, setWidth] = useState('');
-  const [height, setHeight] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [mode, setMode] = useState('');
+export default function Home() {
+  const [formData, setFormData] = useState({
+    description: '',
+    value: '',
+    dimensions: '',
+    quantity: '',
+    mode: 'both'
+  });
   const [quote, setQuote] = useState(null);
 
-  const calculateQuote = () => {
-    const cbm = (length * width * height * quantity) / 1000000;
-    const maritimeCost = cbm * 2900000;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const calculateCBM = (dimensions, quantity) => {
+    const [length, width, height] = dimensions.split('x').map(Number);
+    return (length * width * height * quantity) / 1000000;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cbm = calculateCBM(formData.dimensions, formData.quantity);
+    const seaCost = cbm * 2900000;
     const airCost = cbm * 9000000;
-    const duty = value * 0.15;
-    const vat = (parseFloat(value) + duty) * 0.19;
+    const tariff = formData.value * 0.15;
+    const vat = (formData.value + tariff) * 0.19;
 
     setQuote({
-      cbm: cbm.toFixed(2),
-      maritimeTotal: (maritimeCost + duty + vat).toFixed(2),
-      airTotal: (airCost + duty + vat).toFixed(2)
+      cbm,
+      seaCost,
+      airCost,
+      totalSea: seaCost + tariff + vat,
+      totalAir: airCost + tariff + vat
     });
   };
 
-  const sendToWhatsApp = () => {
-    const message = `Hola, quiero empezar mi importación. \nDescripción: ${description}\nValor: $${value}\nCBM: ${quote.cbm} m3\nCosto marítimo: $${quote.maritimeTotal}\nCosto aéreo: $${quote.airTotal}`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/1234567890?text=${encodedMessage}`);
-  };
-
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-2xl shadow-lg">
-      <h2 className="text-xl font-bold mb-4">Cotiza tu importación</h2>
-      <Input placeholder="Descripción del producto" value={description} onChange={e => setDescription(e.target.value)} />
-      <Input placeholder="Valor total en USD" type="number" value={value} onChange={e => setValue(e.target.value)} />
-      <div className="grid grid-cols-3 gap-2">
-        <Input placeholder="Largo (cm)" type="number" value={length} onChange={e => setLength(e.target.value)} />
-        <Input placeholder="Ancho (cm)" type="number" value={width} onChange={e => setWidth(e.target.value)} />
-        <Input placeholder="Alto (cm)" type="number" value={height} onChange={e => setHeight(e.target.value)} />
-      </div>
-      <Input placeholder="Cantidad de cajas" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} />
-      <Select value={mode} onChange={e => setMode(e.target.value)}>
-        <option value="">Selecciona modalidad</option>
-        <option value="maritime">Marítimo</option>
-        <option value="air">Aéreo</option>
-        <option value="both">Ambas</option>
-      </Select>
-      <Button onClick={calculateQuote} className="w-full mt-4">Calcular cotización</Button>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h1 className="text-xl font-bold mb-6">Cotiza tu Importación</h1>
+        <input type="text" name="description" placeholder="Descripción" value={formData.description} onChange={handleChange} className="w-full p-2 mb-4 border rounded" required />
+        <input type="number" name="value" placeholder="Valor total en USD" value={formData.value} onChange={handleChange} className="w-full p-2 mb-4 border rounded" required />
+        <input type="text" name="dimensions" placeholder="Medidas (LxWxH cm)" value={formData.dimensions} onChange={handleChange} className="w-full p-2 mb-4 border rounded" required />
+        <input type="number" name="quantity" placeholder="Cantidad" value={formData.quantity} onChange={handleChange} className="w-full p-2 mb-4 border rounded" required />
+        <select name="mode" value={formData.mode} onChange={handleChange} className="w-full p-2 mb-4 border rounded">
+          <option value="both">Aéreo y Marítimo</option>
+          <option value="air">Aéreo</option>
+          <option value="sea">Marítimo</option>
+        </select>
+        <button type="submit" className="bg-blue-500 text-white w-full p-2 rounded-xl hover:bg-blue-600">Cotizar</button>
+      </form>
 
       {quote && (
-        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-          <p>CBM total: {quote.cbm} m3</p>
-          <p>Tarifa marítima: ${quote.maritimeTotal}</p>
-          <p>Tarifa aérea: ${quote.airTotal}</p>
-          <Button onClick={sendToWhatsApp} className="w-full mt-4 bg-green-500 text-white">Empezar importación</Button>
+        <div className="bg-white p-6 rounded-2xl shadow-lg mt-8">
+          <h2 className="text-lg font-bold">Resultados de Cotización</h2>
+          <p>CBM Total: {quote.cbm.toFixed(2)} m³</p>
+          {formData.mode !== 'air' && <p>Costo Marítimo: ${quote.seaCost.toLocaleString()}</p>}
+          {formData.mode !== 'sea' && <p>Costo Aéreo: ${quote.airCost.toLocaleString()}</p>}
+          {formData.mode !== 'air' && <p>Total Aproximado Marítimo: ${quote.totalSea.toLocaleString()}</p>}
+          {formData.mode !== 'sea' && <p>Total Aproximado Aéreo: ${quote.totalAir.toLocaleString()}</p>}
         </div>
       )}
     </div>
   );
 }
+
