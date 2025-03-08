@@ -1,63 +1,54 @@
 import { useState } from 'react';
 
-export default function Home() {
+export default function Cotizador() {
   const [producto, setProducto] = useState('');
-  const [valor, setValor] = useState('');
-  const [peso, setPeso] = useState('');
-  const [transporte, setTransporte] = useState('Aéreo');
+  const [valorUSD, setValorUSD] = useState('');
+  const [pesoKG, setPesoKG] = useState('');
+  const [tipoTransporte, setTipoTransporte] = useState('Aéreo');
   const [largo, setLargo] = useState('');
   const [ancho, setAncho] = useState('');
   const [alto, setAlto] = useState('');
-  const [numPaquetes, setNumPaquetes] = useState('');
-  const [cotizacion, setCotizacion] = useState(null);
+  const [numCajas, setNumCajas] = useState('');
+  const [cotizacion, setCotizacion] = useState('');
 
   const calcularCotizacion = () => {
-    const valorNumerico = parseFloat(valor);
-    const pesoNumerico = parseFloat(peso);
-    const largoNumerico = parseFloat(largo);
-    const anchoNumerico = parseFloat(ancho);
-    const altoNumerico = parseFloat(alto);
-    const numPaquetesNumerico = parseInt(numPaquetes);
+    const volumenCBM = (largo / 100) * (ancho / 100) * (alto / 100) * numCajas;
+    let costoTransporte = 0;
 
-    if (isNaN(valorNumerico) || isNaN(pesoNumerico) || isNaN(largoNumerico) || isNaN(anchoNumerico) || isNaN(altoNumerico) || isNaN(numPaquetesNumerico)) {
-      alert('Por favor, completa todos los campos con valores numéricos válidos.');
-      return;
+    switch (tipoTransporte) {
+      case 'Aéreo':
+        costoTransporte = volumenCBM * 9000000;
+        break;
+      case 'Marítimo':
+        costoTransporte = volumenCBM * 2500000;
+        break;
+      case 'Courrier':
+        costoTransporte = volumenCBM * 5000000;
+        break;
+      default:
+        costoTransporte = 0;
     }
 
-    const volumen = (largoNumerico * anchoNumerico * altoNumerico) / 1000000 * numPaquetesNumerico; // Volumen en m3
-    const pesoVolumetrico = volumen * 167; // Peso volumétrico aproximado para aéreo
-
-    const pesoFinal = transporte === 'Aéreo' ? Math.max(pesoNumerico, pesoVolumetrico) : pesoNumerico;
-
-    let costo = 0;
-    if (transporte === 'Aéreo') {
-      costo = pesoFinal * 10 + valorNumerico * 0.05; // Ejemplo de tarifas aéreas
-    } else if (transporte === 'Courrier') {
-      costo = pesoFinal * 8 + valorNumerico * 0.04;
-    } else if (transporte === 'Marítimo') {
-      costo = volumen * 200 + valorNumerico * 0.03; // Ejemplo de tarifas marítimas
-    }
-
-    setCotizacion(costo.toFixed(2));
+    setCotizacion(`Costo estimado de transporte: $${costoTransporte.toLocaleString()}`);
   };
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Cotizador de Importaciones</h1>
-      <input placeholder="Producto" value={producto} onChange={e => setProducto(e.target.value)} /><br />
-      <input placeholder="Valor en USD" value={valor} onChange={e => setValor(e.target.value)} /><br />
-      <input placeholder="Peso en KG" value={peso} onChange={e => setPeso(e.target.value)} /><br />
-      <input placeholder="Largo en cm" value={largo} onChange={e => setLargo(e.target.value)} /><br />
-      <input placeholder="Ancho en cm" value={ancho} onChange={e => setAncho(e.target.value)} /><br />
-      <input placeholder="Alto en cm" value={alto} onChange={e => setAlto(e.target.value)} /><br />
-      <input placeholder="Número de paquetes" value={numPaquetes} onChange={e => setNumPaquetes(e.target.value)} /><br />
-      <select value={transporte} onChange={e => setTransporte(e.target.value)}>
+      <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Cotizador de Importaciones</h1>
+      <input type="text" placeholder="Producto" value={producto} onChange={(e) => setProducto(e.target.value)} />
+      <input type="number" placeholder="Valor en USD" value={valorUSD} onChange={(e) => setValorUSD(e.target.value)} />
+      <input type="number" placeholder="Peso en KG" value={pesoKG} onChange={(e) => setPesoKG(e.target.value)} />
+      <input type="number" placeholder="Largo en cm" value={largo} onChange={(e) => setLargo(e.target.value)} />
+      <input type="number" placeholder="Ancho en cm" value={ancho} onChange={(e) => setAncho(e.target.value)} />
+      <input type="number" placeholder="Alto en cm" value={alto} onChange={(e) => setAlto(e.target.value)} />
+      <input type="number" placeholder="Número de Cajas/Paquetes" value={numCajas} onChange={(e) => setNumCajas(e.target.value)} />
+      <select value={tipoTransporte} onChange={(e) => setTipoTransporte(e.target.value)}>
         <option value="Aéreo">Aéreo</option>
-        <option value="Courrier">Courrier</option>
         <option value="Marítimo">Marítimo</option>
-      </select><br />
+        <option value="Courrier">Courrier</option>
+      </select>
       <button onClick={calcularCotizacion}>Calcular Cotización</button>
-      {cotizacion !== null && <h2>Costo Estimado: ${cotizacion} USD</h2>}
+      {cotizacion && <p>{cotizacion}</p>}
     </div>
   );
 }
