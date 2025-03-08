@@ -39,7 +39,7 @@ export default function Cotizador() {
       <input type="number" placeholder="Valor en USD" value={valorUSD} onChange={(e) => setValorUSD(e.target.value)} />
       <input type="number" placeholder="Peso en KG" value={pesoKG} onChange={(e) => setPesoKG(e.target.value)} />
       <input type="number" placeholder="Largo en cm" value={largo} onChange={(e) => setLargo(e.target.value)} />
-      <input type="number" placeholder="Ancho en cm" value={ancho} onChange={(e) => setAncho(e.target.value)} />
+      <input type="number" placeholder="Amcho en cm" value={ancho} onChange={(e) => setAncho(e.target.value)} />
       <input type="number" placeholder="Alto en cm" value={alto} onChange={(e) => setAlto(e.target.value)} />
       <input type="number" placeholder="Número de Cajas/Paquetes" value={numCajas} onChange={(e) => setNumCajas(e.target.value)} />
       <select value={tipoTransporte} onChange={(e) => setTipoTransporte(e.target.value)}>
