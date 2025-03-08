@@ -16,7 +16,7 @@ export default function Cotizador() {
     let costoTransporte = 0;
 
     switch (tipoTransporte) {
-      case 'Aéreo':
+      case 'Aérreo':
         costoTransporte = volumenCBM * 9000000;
         break;
       case 'Marítimo':
